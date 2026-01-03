@@ -1,0 +1,277 @@
+1.3.1 Data Loading and Overview
+
+when you import your dataframe, follow this up by calling the following commands to gain some intuition on your data:
+
+1. df.head - shows all columns and first 5 rows of data; can pass digit as argument to modify number of values shown
+
+2. df.shape - number of rows and collumns
+
+3. df.info - shows null data and data types
+
+4. df.describe - gives summary statistics per variable, pass include='all' as parameter in parenthesis to include info 
+on string/character columns (otherwise you only get info on numeric columns with .describe)
+- additionally use .T to transform the presenation so its more readable
+	df.describe(include="all").T
+
+
+---
+1.3.2 Histogram - understand distribution of a single discrete or continuous numeric variable
+
+to call a function from an imported module, first use that module's alias then the function, for example .histplot()
+for instance seaborn defined as sns thus:
+	sns.histplot(data=... , x="...", bins=..., binwidth=..., kde=True)
+parameters of .histplot include
+a. data you would like to construct histogram
+b. field to conduct histogram with
+c. can also pass number of bins or binwidth though this is inferred and often the default is good
+d. kernel density estimation (KDE) - adds density curve
+
+
+---
+1.3.3 Histogram with density curve- provides a smooth line representation of the histogram on top of the plot
+ works well in instances of noisy data and when there are sparse sections of histogram
+
+in addition to the bars, we can also add a density estime by setting the KDE parameter to true
+	sns.histplot(data=..., x="...", kde=True)
+
+- another parameter that can be added is hue to look across different groups (a categorical variable)
+ this will layer the histograms for each unique value (aka group) for that categorical variable
+	for example
+		sns.histplot(data=..., x="...", hue="<variable name>", kde=True)
+* often this can be messy, thus to compare different distributions across different groups, box plots
+or facetgrid are a better option *
+
+
+---
+1.3.4 Box plots aka box and whiskers plots - understand distributions across groups as well as five number summary 
+(aka min, first quartile or 25th percentile, median or 50th percentile, third quartile or 75th percentile, and max)
+ min and max defined as Q3-Q1(IQR) x 1.5 
+- anything lying beyond this is an outlier aka Q1-1.5*IQR (on left side) or Q3+1.5*IQR (on right side)
+	sns.boxplot(data="...", x="<categorgical feature>", y="continous feature")
+- median line shows us skew - if its closer to the 25th percentile (Q1) then it is positively aka right skewed 
+(behaves similar to tail of histogram), however if closer to 75th percentile (Q3) then it is negatively skewed 
+aka left skewed
+- set x = categorical variable which has values (the different groups) youre trying to compare distributions across
+* boxplots unable to show multimodality (numerous sections of data with most prevalent data, use histograms for this) 
+and clusters, thus using numerous plots is advantageous *
+
+
+---
+1.3.5 Bar graph - used to show counts of a categorical variable (distinguishes from histogram which is for numeric)
+per group (aka per categorgical level with a bar for each level) 
+- use to show how counts of one group compare to another
+	sns.countplot(data=..., x="<categorical variable>", hue="<another categorical variable>")
+ - hue parameter allows us to see subgroups as side-by-side bars of different color with color legend made
+
+matplotlib.pyplot has a helpful function called plt.figure() that allows us to update size of plot being created
+	plt.figure(figsize=(20,7))
+- 20 represents how wide, 7 represents how tall we would like the plot to be
+- matplotlib.pyplot also allows us to rotate x labels (remedy to overlapping)
+	plt.xticks(rotation=90)	
+- to suppress the text generated from the above, use ";" at the end of the line of code or write out "plt.show()"
+on the next line
+	plt.xticks(rotation=90)
+	plt.show()
+or
+	plt.xticks(rotation=90);
+all together
+	plt.figure(figsize=(20,7))
+	sns.countplot(data=..., x="<categorical variable>", hue="<another categorical variable>")
+	plt.xticks(rotation=90)	
+	plt.show()
+- figure size goes first
+
+
+---
+1.3.6 Line plot - used when there are multiple y values with a single x value, often in setting of time
+when there are multiple y values for a given x, they are averaged
+- shaded area represents confidence interval of this estimate
+	sns.lineplot(data="...", x= "time variable", y="<numeric variable>", ci=False, hue="<categorical variable you want to represent as each line if you want to compare groups using different color for each>", style="<cat variable to do same as hue but line type>", markers=True)
+- ci=False turns off confidence interval and is useful to do when you have many lines on the same plot so that it isn't messy
+- markers used to put different point shapes on each line (e.g. squares for one, circles for other) #often you just use hue, style, or markers to delineate the lines amongst groups rather than many of them
+additional customization options include:
+	plt.figure(figsize=(15,7)) #size of the image
+	sns.lineplot(data=flights, x="month", y="passengers", hue="year")
+	plt.ylabel("Title of y label")
+	plt.legend(bbox_to_anchor=[1,1]) #changes location of legend in plot
+
+---
+1.3.7 Scatter plot - used for 2 numeric variables to see if a relationship (correlation) exists between them
+	sns.scatterplot(data=df, x="<numeric variable>", y="<numeric variable>", hue="<categoriocal variable youd like to compare across using color>", style="<categorical variable to distinguish by marker shape>")
+- hue can be used to comapre across levels of a categorical variable, as well as style
+
+
+---
+1.3.8 lm plot in Seaborn - scatter plots with a linear model aka line of best fit
+sns.lmplot(data=df,  x="<numeric variable>", y="<numeric variable>",  hue="<categoriocal variable youd like to compare across using color>", col="<categorical variable you want to create plot side by side aka faceted>", ci=False)
+- confidence interval (shaded area) is naturally larger in areas where there are less data points #default is 95%
+when you use hue as a parameter, a different line of best fit will be created for each level of the categorical variable
+- ci parameter used to turn on or off shaded area representing confidence interval
+- col parameter used to instead put level of a different categorical variable faceted 
+
+
+---
+1.3.9 Joint plot - used to visualize bivariate (e.g. scatter plot of the two variables) and univariate profiles (e.g. histogram of each variable) on the same plot
+	sns.jointplot(data=df x="<numeric variable>", y="<numeric variable>", kind="...")
+- by default creates a scatter plot but this can be customized
+- kind parameter changes type of info displayed
+	 kind="hex" 
+		#splits plotting window into hexagon and colors hexagon based on number of data points in it, particularly useful when 				scatter plot is very crowded
+	kind="kde"
+		#puts smooth representation on the axis instead of histograms 
+		#additionally, instead of scatter plot, kernel density estimate plotted in center. darker where there are more data points.
+		#use under similar circumstances as hexplot, when there are lots of crowded areas in the scatter
+	kind="reg"
+		# creates scatter plot with line of best fit aka lmplot (reg for regression)
+		#additionally histograms show kde or smooth line on top of the histogram
+---
+
+1.3.10 Violin plot (combination of boxplot and density plot)- similar to boxplot, shows distribution of numerical variable across several groups (aka across levels of some categorical variable)
+- advantage over a boxplot is that it gives info on density across entire range of data (as opposed to just understanding IQR)
+- median represented by white dot
+-  bar in middle represents IQR
+	sns.violinplot(data=df, x="<numerical variable>",  y="<numerical or categorical variable >", pallette="...")
+	# for the numeric variable, use x if you want the violin laying horizontally, or y if you want it vertically
+	# if you pass a categorical variable to y, you can compare across different groups 
+- pallette parameter changes type of color displayed
+	pallete="bright" 
+	# bright colors, useful for presenting
+	pallete="colorblind"
+	#blues, grays, and oranges used to be visible for those that are colorblind
+
+---
+1.3.11 Strip plot- effectively a scatter plot that allows us to differentiate between different categories, good alternative to a box plot or a violin plot for comparing data distributions when we have fewer data points
+	sns.stripplot(data=df, x="<categorical variable>",  y="<numeric variable>", hue="<categorical variable>", jitter=True)
+- y axes does not mean anything but there is jitter in areas of more data points (shifted up or down) so that they are not all on top of each other and thus it is easier to distinguish areas of more or less density
+- similar to previous uses, hue can be used to look at levels of a categorical variable here as well
+	
+
+---
+1.3.12 Swarm plot - very similar to strip plot but avoids overlapping of points completely thus we can look at width to get density
+	sns.swarmplot(data=df, x="<categorical variable>",  y="<numeric variable>", hue="<categorical variable>", dodge=True)
+- when you set the hue to a categorical variable as well, it can be helpful to set doge=True so that you separate out the points completely and have them side by side rather than on top of one another
+
+---
+1.3.13 cat plot (short for categorical)- supports 8 different categorical plots but default is strip plot, allows us to assess distribution differences across many categories
+	sns.catplot(data=df, x="<categorical variable>",  y="<numeric variable>", hue="<categorical variable>", kind="...", col="<categorical variable you want to facet by>")
+- kind parameter controls type of plot, default is strip
+	kind="point"
+	# does the same thing as just calling a pointplot
+	kind="box"
+	#box plots
+	kind="bar"
+	#bar graph
+	kind="swarm"
+	#swarm plot
+- supports the following: categoical scatterplots (striplot and swarmplot), categorical distribution plots (boxplots, violenplots, and boxplot), and categorical estimate plots (pointplot, barplot, and countplot)
+
+---
+1.3.14 Pair plot- quickly shows relationship (correlation) between all numeric variables two at a time by creating a grid of scatterplots
+	sns.pairplot(
+		data=df[	
+			[
+				"<numeric variable 1>",
+				"<numeric variable 2>",
+				"<numeric variable 3>",
+				"<numeric variable 4 and so on>"
+			]
+		]
+	)
+or
+	sns.pariplot(
+		data=df,
+		vars=["<numeric variable 1>", "<numeric variable 2>", "<numeric variable 3>", "<numeric variable 4 and so on>"],
+		hue="<categorical variable to distiguish across levels by color similar to previous>",
+		corner=True
+	)
+- also creates a histogram for each at the grid location where the row and column label are the same
+- otherwise row and column label specifies the pair being compared as a scatter plot
+- first coding option filters the dataset to numeric variables of interest while second just uses vars paramets to specifiy variable of interest
+- corner parameter when True removes duplicate pair plots and allows for cleaner representation meaning you are not showing the same relationship twice. it removes the scatters to the right of each histogram (which are scatters that are displayed inversely elsewhere)
+
+---
+1.3.15 Heat map- color encoded matrix to represent correlation amongst numerical variables
+- correlation ranges from -1 to 1, closer to 0 means little to no correlation
+pandas .corr function allows us to find correlation
+	df[["<numeric variable 1>", "<numeric variable 2>", "<numeric variable 3>", "<numeric variable 4 and so on>"]].corr()
+		#returns table showing correlation for all variables
+		to instead represent this as a heat map use following
+	sns.heatmap(
+		data=df[["<numeric variable 1>", "<numeric variable 2>", "<numeric variable 3>", "<numeric variable 4 and so 	on>"]].corr,
+		annot=True,
+		cbar=True,
+	)
+	- annot parameter adds the correlation number to each square instead of only having color
+	- cbar=False removes color bar along y axis, generally leave this as True so that we understand color, another option is changing 	the color using this parameter
+		cmap="YlGnBu"
+		#sets color system to yellow,green, and blue
+
+---
+faceted line or scatter plot
+	sns.relplot(data=data,x='AgeofProp',y='Price',col='Regionname',kind='line', ci=None, col_wrap=4)
+	plt.show()
+kind - specifies the kind of plot to draw (scatter or line)
+ci - specifies the confidence interval
+col_wrap - specifies the number of columns in the grid
+---
+
+1.3.16 Plotly - library for building interactive visualizations (distinguishes from seaport, can zoom in/rotate/etc)  
+install library, then import
+	!pip install plotly #exclamation mark used inside of google collab or jupyter notebook
+	import plotly.express as px
+create and display interactive plots, for example
+	his = px.hisogram(df, x="<numeric variable>")
+	his.show()
+		#histogram
+	fig_3d = px.scatter_3d(df, x="<categorical variable>", y="<numeric variable>", z="<numeric variable>")
+	fig_3d.show()
+		# 3d scatter plot 
+	fig_3d.write_html("scatter_3d.html")
+		#saves plot to html file so that someone else can open it in web browser
+---
+
+1.3.17 Customizing plots - call these after you make the plot, these are just some
+to change the axis scales of a plot
+	plt.xlim(left,right) #where left and right indicate mix and max of x axis
+	plt.ylim(bottom, top) #where bottom and top indicate min and max of y axis
+
+to change the plot title and axis label
+	plt.title("...")
+	plt.xlabel("...")
+	plt.ylabel("...")
+
+to showthe grid lines of a plot
+	sns.set(style="darkgrid")
+	sns.set(style="whitegrid")
+	sns.set(style="white")
+
+to hide the axes of a plot
+	plt.axis("off") # hdies x and y axis
+
+to customaize the labels of the plot legend
+	ax.legend([])
+
+to change position of the plot legend 
+	plt.legend(loc="...")
+		#possible values include upper left, upper right, lower left, lower right, center, best, etc
+
+----
+
+general things to import
+	# mount drive to get data file from drive into collab notebook
+		from google.collab import drive
+		drive.mount("/content/drive")
+	#libraries to help with reading and manipulating data
+		import numpy as np
+		import pandas as pd
+	#libraries to help with data visualization
+		import matplotlib.pyplot as plkt
+		import seaborn as sns
+	
+other useful commands 
+	#command to tell python to actually display the graphs
+		%matplotlib inline
+	#load data
+		df = pd.read_csv("drive path")
+			
+	
